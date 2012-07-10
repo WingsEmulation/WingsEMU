@@ -151,7 +151,31 @@ public:
 
 };
 
+class npc_gluth_zombie : public CreatureScript
+{
+    public:
+
+		npc_gluth_zombie() : CreatureScript("npc_gluth_zombie"){ }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+           return new npc_gluth_zombieAI(creature);
+        }
+
+		struct npc_gluth_zombieAI : public ScriptedAI
+        {
+            npc_gluth_zombieAI(Creature* creature) : ScriptedAI(creature) {}
+
+			void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+			{
+				if (spell->Id == SPELL_DECIMATE)
+					me->SetHealth(RAID_MODE(25200, 50400));
+			}
+		};
+};
+
 void AddSC_boss_gluth()
 {
     new boss_gluth();
+	new npc_gluth_zombie();
 }

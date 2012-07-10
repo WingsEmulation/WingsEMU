@@ -489,7 +489,7 @@ enum PlayerFieldByte2Flags
 
 enum MirrorTimerType
 {
-    FATIGUE_TIMER      = -1,
+    FATIGUE_TIMER      = 0,
     BREATH_TIMER       = 1,
     FIRE_TIMER         = 2
 };
@@ -2557,6 +2557,9 @@ class Player : public Unit, public GridObject<Player>
         */
         void SendMovementSetCanFly(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
+        void SendMovementSetHover(bool apply);
+        void SendMovementSetWaterWalking(bool apply);
+        void SendMovementSetFeatherFall(bool apply);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
