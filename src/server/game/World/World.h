@@ -288,6 +288,9 @@ enum WorldIntConfigs
     CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH,
     CONFIG_ARENA_MAX_RATING_DIFFERENCE,
     CONFIG_ARENA_RATING_DISCARD_TIMER,
+    CONFIG_ARENA_RATED_UPDATE_TIMER,
+    CONFIG_ARENA_PROGRESSIVE_MMR_TIMER,
+    CONFIG_ARENA_PROGRESSIVE_MMR_STEPSIZE,
     CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,
     CONFIG_ARENA_SEASON_ID,
     CONFIG_ARENA_START_RATING,
@@ -775,12 +778,6 @@ class World
         static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
         static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
         static int32 GetVisibilityNotifyPeriodInBGArenas()  { return m_visibility_notify_periodInBGArenas;   }
-		
-		/*////////Anticheat By jacob////////*/
-        static bool GetEnableMvAnticheat()       { return m_EnableMvAnticheat;     }
-        static uint32 GetTeleportToPlaneAlarms() { return m_TeleportToPlaneAlarms; }
-        static uint32 GetMistimingDelta()        { return m_MistimingDelta;        }
-        static uint32 GetMistimingAlarms()       { return m_MistimingAlarms;       }
 
         void ProcessCliCommands();
         void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
@@ -896,11 +893,6 @@ class World
         static int32 m_visibility_notify_periodOnContinents;
         static int32 m_visibility_notify_periodInInstances;
         static int32 m_visibility_notify_periodInBGArenas;
-		/*//////Anticheat By jacob//////*/
-        static bool m_EnableMvAnticheat;
-        static uint32 m_TeleportToPlaneAlarms;
-        static uint32 m_MistimingDelta;
-        static uint32 m_MistimingAlarms;
 
         // CLI command holder to be thread safe
         ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;

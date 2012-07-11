@@ -1,0 +1,75 @@
+############################################################################################
+#                 ____  _ _         _   _      _    ____                                   #
+#                | __ )| (_)_______| \ | | ___| |_ / ___|___  _ __ ___                     #
+#                |  _ \| | |_  /_  /  \| |/ _ \ __| |   / _ \| '__/ _ \                    #
+#                | |_) | | |/ / / /| |\  |  __/ |_| |__| (_) | | |  __/                    #
+#                |____/|_|_/___/___|_| \_|\___|\__|\____\___/|_|  \___|                    #
+#                                                                                          #
+#                                      Changelog                                           #
+#                                                                                          #
+############################################################################################
+
+############################################################################################
+# Scripts                                                                                  #
+#    Add here script bugs (instance world event etc..)                                     #
+#                                                                                          #
+############################################################################################
+
+- 
+
+############################################################################################
+# Database                                                                                 #
+#     Add here database bugs (loot spawn etc..)                                            #
+#                                                                                          #
+############################################################################################
+
+- 
+
+############################################################################################
+# CORE                                                                                     #
+#   Add here everything which connected to the core: (spells,groups,maps etc..)            #
+#                                                                                          #
+############################################################################################
+
+~>XX.07.2012:
+
+- Core/Spells: Do not proc spells with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_(NEG|POS) if there is no target, reimplemented Storm, Earth and Fire talent in another way.
+- Core/Spells: Fixed Riptide bonus on Chain Heal
+- Fix Earthen Power
+- Fixed consuming of Grounding Totem when it's not redirected any spell.
+- Added spells for Fire Elemental Totem and Earth Elemental Totem
+- Fix Brambles - hardcoding increased dmg of Treants.
+- Fix Elixir of Minor Fortitude
+- Fix Warr T8 4p bonus
+- Fix DK T8 4p bonus
+- PeAI update
+- Core/Spells: Fix Rabbit Costume and Noblegarden Bunny
+- Core/Spells: Implement SPELL_ATTR4_PROC_ONLY_ON_CASTER properly.
+- Fixed Libram of Veracity proc
+- Core/Spells: Fix unrelenting assault not proccing aura when overpower is used while target is casting.
+- Core/Spells: Fixed Dancing Rune Weapon double-applying the duration bonus of the glyph.
+- Core/Spells: Rune Strike should only be available for use once after a block/parry. (Merge to TC (Apr 04, 2012))
+- Core/Spells: correctly fix the issue with dispel over time auras.
+- Core/Spells: Blade Barrier should not proc from autoattacks.
+- Core/Spells: The first target of a chained spell should be explicit.
+- Core/Spells: Fixed SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT on several types of spell effects.
+- Core/Spells: attempt to fix penance doing nothing on "friendly" non faction targets. should return invalid targets.
+- Core/DB: Adjust AP-bonuses for Hunter Volley (thanks to Jildor).
+- Core/Spells: Correct diminishing returns for Horror category.
+- Fix Restore pet loading.
+
+~>09.07.2012:
+
+- Merge to TC (Game/WorldSocket).
+- Core/Movement: Fix pushback issues and client freeze.
+- Fix Flare and Death Grip.
+- Fix rocket boots.
+- Merge to TC (Game/Warden).
+- Core/Visibility: Change the default visibility distance for instances and battlegrounds to blizz-like values.
+- Core/MapManager: Fix logic in SetMapUpdateInterval()
+- Core/BattlegroundMgr: Introduce RatedUpdateTimer for time between checks for rated arena matchups, RatingDiscardTimer is an unfit choice.
+- Core/BattlegroundQueue: Implement progressive MMR search range.
+
+~>04.07.2012:
+
+- Merge to TC Mar 26, 2012 
