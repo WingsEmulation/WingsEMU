@@ -566,6 +566,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
+    // Signal to pets that their owner was attacked
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+    {
+        Pet* pet = victim->ToPlayer()->GetPet();
+
+        if (pet && pet->isAlive())
+            pet->AI()->OwnerDamagedBy(this);
+    }
+
     if (damagetype != NODAMAGE)
     {
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
@@ -4441,9 +4450,7 @@ float Unit::GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask
     }
     // Add the highest of the Same Effect Stack Rule SpellGroups to the multiplier
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
-    {
         AddPctN(multiplier, itr->second);
-    }
 
     return multiplier;
 }
@@ -4478,27 +4485,38 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_
 
 int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const
 {
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
         if ((*i)->GetMiscValue() == misc_value)
-            modifier += (*i)->GetAmount();
+            if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+                modifier += (*i)->GetAmount();
     }
+
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+         modifier += itr->second;
     return modifier;
 }
 
 float Unit::GetTotalAuraMultiplierByMiscValue(AuraType auratype, int32 misc_value) const
 {
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
         if ((*i)->GetMiscValue() == misc_value)
-            AddPctN(multiplier, (*i)->GetAmount());
+            if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+                AddPctN(multiplier, (*i)->GetAmount());
     }
+
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+         AddPctN(multiplier, itr->second);
+
     return multiplier;
 }
 
@@ -4532,27 +4550,38 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
 
 int32 Unit::GetTotalAuraModifierByAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const
 {
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
         if ((*i)->IsAffectedOnSpell(affectedSpell))
-            modifier += (*i)->GetAmount();
+            if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+                modifier += (*i)->GetAmount();
     }
+
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+         modifier += itr->second;
+
     return modifier;
 }
 
 float Unit::GetTotalAuraMultiplierByAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const
 {
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
         if ((*i)->IsAffectedOnSpell(affectedSpell))
-            AddPctN(multiplier, (*i)->GetAmount());
+            if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+                AddPctN(multiplier, (*i)->GetAmount());
     }
+
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+         AddPctN(multiplier, itr->second);
     return multiplier;
 }
 
@@ -7334,20 +7363,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 63685;
                 break;
             }
-            // Storm, Earth and Fire
-            if (dummySpell->SpellIconID == 3063)
-            {
-                // Earthbind Totem summon only
-                if (procSpell->Id != 2484)
-                    return false;
-
-                float chance = (float)triggerAmount;
-                if (!roll_chance_f(chance))
-                    return false;
-
-                triggered_spell_id = 64695;
-                break;
-            }
             // Ancestral Awakening
             if (dummySpell->SpellIconID == 3065)
             {
@@ -8047,6 +8062,22 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     }
                 }
                 return true;
+            }
+            break;
+        }
+        case SPELLFAMILY_SHAMAN:
+        {
+            switch (dummySpell->Id)
+            {
+                // Grounding Totem
+                case 8178:
+                {
+                    *handled = true;
+                    // uncomment it when we will implement proc from taken non-damaging spells
+                    /*if (victim != this)
+                        return true;*/
+                    break;
+                }
             }
             break;
         }
@@ -8819,7 +8850,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     }
 
     // Blade Barrier
-    if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
+    if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85 && procSpell)
     {
         Player* player = ToPlayer();
         if (!player || player->getClass() != CLASS_DEATH_KNIGHT)
@@ -9507,6 +9538,16 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     if (meleeAttack)
         SendMeleeAttackStart(victim);
+
+    // Let the pet know we've started attacking someting. Handles melee attacks only
+    // Spells such as auto-shot and others handled in WorldSession::HandleCastSpellOpcode
+    if (this->GetTypeId() == TYPEID_PLAYER)
+    {
+        Pet* playerPet = this->ToPlayer()->GetPet();
+        
+        if (playerPet && playerPet->isAlive())
+            playerPet->AI()->OwnerAttacked(victim);
+    }
 
     return true;
 }
@@ -11001,6 +11042,12 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0, 0, GetGUID()))
                                 if (victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE) > -100)
                                     return true;
+                            break;
+                        }
+                        // Player Fire Totems have same spell crit chance like Player spell crit
+                        if (isTotem() && IS_PLAYER_GUID(GetOwnerGUID()) && schoolMask & SPELL_SCHOOL_MASK_FIRE)
+                        {
+                            return GetOwner()->isSpellCrit(victim, spellProto, schoolMask, attackType);
                             break;
                         }
                     break;

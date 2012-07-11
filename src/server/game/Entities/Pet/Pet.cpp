@@ -105,19 +105,19 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         // Known petnumber entry
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
         stmt->setUInt32(0, ownerid);
-        stmt->setUInt8(1, uint8(petnumber));
+        stmt->setUInt32(1, petnumber);
     }
     else if (current)
     {
         // Current pet (slot 0)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
         stmt->setUInt32(0, ownerid);
         stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
     }
     else if (petentry)
     {
         // known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
         stmt->setUInt32(0, ownerid);
         stmt->setUInt32(1, petentry);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -920,8 +920,30 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     if (!pInfo)
                         SetCreateHealth(30 + 30*petlevel);
                     float bonusDmg = m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_NATURE) * 0.15f;
-                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2) + bonusDmg));
-                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
+                    float minDmg = float(petlevel * 2.5f - (petlevel / 2) + bonusDmg);
+                    float maxDmg = float(petlevel * 2.5f + (petlevel / 2) + bonusDmg);
+
+                    // Brambles rank 1
+                    if (m_owner->HasAura(16836))
+                    {
+                        minDmg *= 1.05f;
+                        maxDmg *= 1.05f;
+                    }
+                    // Brambles rank 2
+                    else if (m_owner->HasAura(16839))
+                    {
+                        minDmg *= 1.10f;
+                        maxDmg *= 1.10f;
+                    }
+                    // Brambles rank 3
+                    else if (m_owner->HasAura(16840))
+                    {
+                        minDmg *= 1.15f;
+                        maxDmg *= 1.15f;
+                    }
+
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDmg);
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDmg);
                     break;
                 }
                 case 15352: //earth elemental 36213
