@@ -168,7 +168,7 @@ class npc_gluth_zombie : public CreatureScript
 
 			void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
 			{
-				if (spell->Id == SPELL_DECIMATE)
+				if (spell->Id == SPELL_DECIMATE_10)
 					me->SetHealth(RAID_MODE(25200, 50400));
 			}
 		};

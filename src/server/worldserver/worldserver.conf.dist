@@ -1,5 +1,5 @@
 ################################################
-# WingsEmu World Server configuration file #
+# Trinity Core World Server configuration file #
 ################################################
 [worldserver]
 
@@ -178,7 +178,7 @@ Compression = 1
 #                     1+  - (Enabled)
 #                     0   - (Disabled, No limit)
 
-PlayerLimit = 0
+PlayerLimit = 100
 
 #
 #    SaveRespawnTimeImmediately
@@ -246,9 +246,9 @@ ChangeWeatherInterval = 600000
 #
 #    PlayerSaveInterval
 #        Description: Time (in milliseconds) for player save interval.
-#        Default:     300000 - (5 min)
+#        Default:     900000 - (15 min)
 
-PlayerSaveInterval = 300000
+PlayerSaveInterval = 900000
 
 #
 #    PlayerSave.Stats.MinLevel
@@ -256,7 +256,7 @@ PlayerSaveInterval = 300000
 #        Default:     0  - (Disabled, Do not save character stats)
 #                     1+ - (Enabled, Level beyond which character stats are saved)
 
-PlayerSave.Stats.MinLevel = 1
+PlayerSave.Stats.MinLevel = 0
 
 #
 #    PlayerSave.Stats.SaveOnlyOnLogout
@@ -353,7 +353,7 @@ LogDB.Opt.ClearTime = 1209600
 #        Default:     0   - (Disabled)
 #                     10+ - (Enabled, Recommended 10+)
 
-MaxCoreStuckTime = 120
+MaxCoreStuckTime = 0
 
 #
 #    AddonChannel
@@ -369,7 +369,7 @@ AddonChannel = 1
 #        Description: Number of threads to update maps.
 #        Default:     1
 
-MapUpdate.Threads = 4
+MapUpdate.Threads = 1
 
 #
 #    CleanCharacterDB
@@ -639,7 +639,7 @@ SQLDriverQueryLogging = 0
 #        Example:     "13 11 9 5" - (Enabled)
 #        Default:     ""          - (Disabled)
 
-LogColors = "13 11 9 5"
+LogColors = ""
 
 #
 #    EnableLogDB
@@ -1377,7 +1377,7 @@ ClientCacheVersion = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Event.Announce = 1
+Event.Announce = 0
 
 #
 #    BeepAtStart
@@ -1425,7 +1425,7 @@ AllowTickets = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled, Experimental as of still being in development)
 
-DungeonFinder.Enable = 1
+DungeonFinder.Enable = 0
 
 #
 #   DBC.EnforceItemAttributes
@@ -1437,6 +1437,37 @@ DungeonFinder.Enable = 1
 DBC.EnforceItemAttributes = 1
 
 #
+
+#######################################################
+#######################################################
+#    Anticheat.Movement.Enable By jacob	
+#        Enable Movement Anticheat
+#        Default: 1 - on	
+#                 0 - off	
+#	
+Anticheat.Movement.Enable = 1	
+	
+#	
+#    Anticheat.Movement.TeleportToPlaneAlarms	
+#        maximum alarms before logging mode will be switched from debug to error (default 50, allowed 20 - 100)	
+#
+	
+Anticheat.Movement.TeleportToPlaneAlarms = 50	
+	
+#	
+#    Anticheat.Movement.MistimingDelta
+#        mistiming intelval between client and serverside (default 15000 ms, allowed 5000 - 50000 ms)	
+#	
+	
+Anticheat.Movement.MistimingDelta = 15000	
+	
+#
+#    Anticheat.Movement.MistimingAlarms	
+#        mistiming alarms before logging mode will be switched from debug to error (default 200, allowed 100 - 500)	
+#
+	
+Anticheat.Movement.MistimingAlarms = 200	
+
 #   AccountInstancesPerHour
 #        Description: Controls the max amount of different instances player can enter within hour
 #        Default:     5
@@ -2038,17 +2069,17 @@ Visibility.GroupMode = 1
 #    Visibility.Distance.Instances
 #    Visibility.Distance.BGArenas
 #        Description: Visibility distance to see other players or gameobjects.
-#                     Visibility on continents on retail ~90 yards. In BG/Arenas ~533.
-#                     For instances default ~170.
-#                     Max limited by active player zone: ~ 533.33333
+#                     Visibility on continents on retail ~90 yards. In BG/Arenas ~180.
+#                     For instances default ~120.
+#                     Max limited by active player zone: ~ 333
 #                     Min limit is max aggro radius (45) * Rate.Creature.Aggro
 #        Default:     90  - (Visibility.Distance.Continents)
-#                     170 - (Visibility.Distance.Instances)
-#                     533 - (Visibility.Distance.BGArenas)
+#                     120 - (Visibility.Distance.Instances)
+#                     180 - (Visibility.Distance.BGArenas)
 
 Visibility.Distance.Continents = 90
-Visibility.Distance.Instances = 170
-Visibility.Distance.BGArenas = 533
+Visibility.Distance.Instances = 120
+Visibility.Distance.BGArenas = 180
 
 #
 #    Visibility.Notify.Period.OnContinents
@@ -2528,28 +2559,6 @@ Battleground.Random.ResetHour = 6
 Arena.MaxRatingDifference = 150
 
 #
-# Arena.RatedUpdateTimer
-# Description: Time between checks (in milliseconds) for matchups in rated arena
-# Default: 5000 - (5 seconds)
-
-Arena.RatedUpdateTimer = 5000
-
-#
-# Arena.ProgressiveMMRTimer
-# Description: Time between increases in MMR search range
-# Default: 30000 (30 seconds)
-
-Arena.ProgressiveMMRTimer = 30000
-
-#
-# Arena.ProgressiveMMRStepSize
-# Description: Amount by which the search range is increased
-# for each passing of ProgressiveMMRTimer
-# Default: 50
-
-Arena.ProgressiveMMRStepSize = 100
-
-#
 #    Arena.RatingDiscardTimer
 #        Description: Time (in milliseconds) after which rating differences are ignored when
 #                     setting up matches.
@@ -2924,27 +2933,6 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
-#      GMIsland.PlayersNoAccess.Enable
-#        Prevent access for players to gm island
-#        Default: 1 - Enable
-#                 0 - Disable
-
-GMIsland.PlayersNoAccess.Enable = 1
-
-#
-#      GMIsland.Ban.Enable
-#        Enable to ban players that tries to access GM Island without proper Access
-#        Default: 0 - Disable
-#                 1 - Enable
-
-GMIsland.Ban.Enable = 0
-
-#
-###################################################################################################
-
-###################################################################################################
-#    Anticheat
-#
 #     Anticheat.Enable
 #        Description: Enables or disables the Anticheat System functionality
 #        Default:     1 - (Enabled)
@@ -2990,10 +2978,21 @@ Anticheat.MaxReportsForDailyReport = 70
 Anticheat.Ban = 1
 
 #
-###################################################################################################
+#      GMIsland.PlayersNoAccess.Enable
+#        Prevent access for players to gm island
+#        Default: 1 - Enable
+#                 0 - Disable
 
-###################################################################################################
-#    WINTERGRASP!
+GMIsland.PlayersNoAccess.Enable = 1
+
+#
+#      GMIsland.Ban.Enable
+#        Enable to ban players that tries to access GM Island without proper Access
+#        Default: 0 - Disable
+#                 1 - Enable
+
+GMIsland.Ban.Enable = 0
+
 #
 #   OutdoorPvP.Wintergrasp.Enabled
 #       Determines whether the Wintergrasp battle is enabled or not.
@@ -3115,12 +3114,6 @@ OutdoorPvP.Wintergrasp.Antifarm.Atk = 5
 #              (Default: 5)
 
 OutdoorPvP.Wintergrasp.Antifarm.Def = 5
-
-#
-###################################################################################################
-
-###################################################################################################
-#    AuctionHouseBot!
 
 #
 #    AuctionHouseBot.DEBUG
@@ -3471,8 +3464,6 @@ AuctionHouseBot.GlyphBidPriceMax = 0
 #        Description: Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.	
 #        Default: 1 - (Enabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will be activated in the cities only (blizzlike))	
 #                 0 - (Disabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will connected at any place)
-
-Channel.CityOnlyFlag = 1
-
+	
+Channel.CityOnlyFlag = 1	
 #
-###################################################################################################
